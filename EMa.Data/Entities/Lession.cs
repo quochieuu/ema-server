@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EMa.Data.Entities.Common;
 
 namespace EMa.Data.Entities
 {
-    public class Lession
+    public class Lession : ModelBase
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
     }
 }

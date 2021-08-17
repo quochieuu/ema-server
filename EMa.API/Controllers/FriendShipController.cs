@@ -1,4 +1,5 @@
-﻿using EMa.Data.DataContext;
+﻿using EMa.Common.Helpers;
+using EMa.Data.DataContext;
 using EMa.Data.Entities;
 using EMa.Data.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace EMa.API.Controllers
 {
     [ApiController]
     [Route("friendship")]
-    //[Authorize(Roles = "Admin")]
     public class FriendShipController : Controller
     {
         private readonly DataDbContext _context;
@@ -24,51 +25,79 @@ namespace EMa.API.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<FriendShip>>> GetFriendShips()
+        public async Task<ActionResult<IEnumerable<FriendShip>>> GetAll()
         {
-            return await _context.FriendShips.ToListAsync();
+            return await _context.FriendShips.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FriendShip>> GetFriendShip(Guid id)
+        public async Task<ActionResult<FriendShip>> Get(Guid id)
         {
-            var friendship = await _context.FriendShips.FindAsync(id);
+            var quizType = await _context.FriendShips.FindAsync(id);
 
-            if (friendship == null)
+            if (quizType == null)
             {
                 return NotFound();
             }
 
-            return Ok(friendship);
+            return Ok(quizType);
         }
 
-        [HttpPost("{userId}")]
-        public async Task<ActionResult<FriendShip>> PostFriendShips(Guid userId, CreateFriendShipViewModel model)
+        [HttpPost("")]
+        public async Task<ActionResult<FriendShip>> Post(CreateFriendShipViewModel model)
         {
-            FriendShip createFriendShip = new FriendShip()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendShip createItem = new FriendShip()
             {
                 SenderId = model.SenderId,
                 ReceipId = model.ReceipId,
-                Confirmed = model.Confirmed
+                Confirmed = model.Confirmed,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.FriendShips.Add(createFriendShip);
+
+            _context.FriendShips.Add(createItem);
             await _context.SaveChangesAsync();
 
-            return Ok(createFriendShip);
+            return Ok(createItem);
         }
 
-
-        [HttpPut("{id}/{userId}")]
-        public async Task<IActionResult> PutFriendShips(Guid id, Guid userId, UpdateFriendShipViewModel model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, UpdateFriendShipViewModel model)
         {
-            FriendShip updateFriendShip = new FriendShip()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendShip updateItem = new FriendShip()
             {
                 Id = id,
                 SenderId = model.SenderId,
                 ReceipId = model.ReceipId,
-                Confirmed = model.Confirmed
+                Confirmed = model.Confirmed,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.Entry(updateFriendShip).State = EntityState.Modified;
+            _context.Entry(updateItem).State = EntityState.Modified;
 
             try
             {
@@ -76,7 +105,7 @@ namespace EMa.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FriendShipsExists(id))
+                if (!CheckExists(id))
                 {
                     return NotFound();
                 }
@@ -86,28 +115,69 @@ namespace EMa.API.Controllers
                 }
             }
 
-            return Ok(updateFriendShip);
+            return Ok(updateItem);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<FriendShip>> DeleteFriendShips(Guid id)
+        public async Task<ActionResult<FriendShip>> Delete(Guid id)
         {
-            var friendship = await _context.FriendShips.FindAsync(id);
-            if (friendship == null)
+            var item = await _context.FriendShips.FindAsync(id);
+            if (item == null)
             {
                 return NotFound();
             }
 
-            _context.FriendShips.Remove(friendship);
+            _context.FriendShips.Remove(item);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
-        private bool FriendShipsExists(Guid id)
+        [HttpDelete("hide/{id}")]
+        public async Task<IActionResult> Hide(Guid id)
+        {
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendShip updateItem = new FriendShip()
+            {
+                Id = id,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = userId,
+                IsActive = true,
+                IsDeleted = true,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
+            };
+            _context.Entry(updateItem).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CheckExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(updateItem);
+        }
+
+        private bool CheckExists(Guid id)
         {
             return _context.FriendShips.Any(e => e.Id == id);
         }
-
     }
 }

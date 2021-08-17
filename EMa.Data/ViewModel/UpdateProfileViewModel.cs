@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 
-namespace EMa.Data.Entities
+namespace EMa.Data.ViewModel
 {
-    public class AppUser : IdentityUser<Guid>
+    public class UpdateProfileViewModel
     {
+        public Guid Id { get; set; }
         public string ParentName { get; set; }
         public DateTimeOffset ParentAge { get; set; }
         public string ChildName { get; set; }

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EMa.Data.Entities.Common;
+using System;
 
 namespace EMa.Data.Entities
 {
-    public class PostLike
+    public class PostLike : ModelBase
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public Guid PostId { get; set; }
 

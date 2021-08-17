@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EMa.Data.Entities.Common;
+using System;
 
 namespace EMa.Data.Entities
 {
-    public class Notification
+    public class Notification : ModelBase
     {
-        public Guid Id { get; set; }
         public string Content { get; set; }
-        public Guid CreatedBy { get; set; }
         public Guid? UserId { get; set; }
         public string Type { get; set; }
 

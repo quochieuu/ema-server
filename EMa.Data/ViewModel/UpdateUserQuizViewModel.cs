@@ -1,9 +1,8 @@
-﻿using EMa.Data.Entities.Common;
-using System;
+﻿using System;
 
-namespace EMa.Data.Entities
+namespace EMa.Data.ViewModel
 {
-    public class UserQuiz : ModelBase
+    public class UpdateUserQuizViewModel
     {
         public Guid QuizId { get; set; }
         public Guid UserId { get; set; }
@@ -11,8 +10,5 @@ namespace EMa.Data.Entities
         public string Answer { get; set; }
         public bool RightOrWrong { get; set; }
         public int NoExams { get; set; }
-
-        public virtual AppUser AppUser { get; set; }
-        public virtual Quiz Quiz { get; set; }
     }
 }

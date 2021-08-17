@@ -1,9 +1,6 @@
-﻿using EMa.Data.Entities.Common;
-using System;
-
-namespace EMa.Data.Entities
+﻿namespace EMa.Data.ViewModel
 {
-    public class Quiz : ModelBase
+    public class CreateQuizViewModel
     {
         public string QuestionName { get; set; }
         public int NoAnswer { get; set; }
