@@ -15,5 +15,6 @@ namespace EMa.Data.Entities
         public bool Active { get; set; }
 
         public virtual AppUser AppUser { get; set; }
+        public virtual List<PostComment> PostComments { get; set; }
     }
 }
