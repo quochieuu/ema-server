@@ -13,27 +13,27 @@ using System.Threading.Tasks;
 namespace EMa.API.Controllers
 {
     [ApiController]
-    [Route("blog")]
-    public class BlogController : Controller
+    [Route("quizType")]
+    public class QuizTypeController : Controller
     {
         private readonly DataDbContext _context;
 
-        public BlogController(DataDbContext context)
+        public QuizTypeController(DataDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<Blog>>> GetAll()
+        public async Task<ActionResult<IEnumerable<QuizType>>> GetAll()
         {
-            return await _context.Blogs.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
+            return await _context.QuizTypes.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Blog>> Get(Guid id)
+        public async Task<ActionResult<QuizType>> Get(Guid id)
         {
-            var quizType = await _context.Blogs.FindAsync(id);
+            var quizType = await _context.QuizTypes.FindAsync(id);
 
             if (quizType == null)
             {
@@ -44,18 +44,16 @@ namespace EMa.API.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult<Blog>> Post(CreateBlogViewModel model)
+        public async Task<ActionResult<QuizType>> Post(CreateQuizTypeViewModel model)
         {
             string tokenString = Request.Headers["Authorization"].ToString();
             // Get UserId, ChildName, PhoneNumber from token
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            Blog createItem = new Blog()
+            QuizType createItem = new QuizType()
             {
-                Title = model.Title,
-                Thumbnail = model.Thumbnail,
-                Content = model.Content,
+                Name = model.Name,
                 CreatedDate = DateTime.Now,
                 CreatedTime = DateTime.Now,
                 CreatedBy = userId,
@@ -67,26 +65,24 @@ namespace EMa.API.Controllers
                 ModifiedTime = DateTime.Now
             };
 
-            _context.Blogs.Add(createItem);
+            _context.QuizTypes.Add(createItem);
             await _context.SaveChangesAsync();
 
             return Ok(createItem);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, UpdateBlogViewModel model)
+        public async Task<IActionResult> Put(Guid id, UpdateQuizTypeViewModel model)
         {
             string tokenString = Request.Headers["Authorization"].ToString();
             // Get UserId, ChildName, PhoneNumber from token
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            Blog updateItem = new Blog()
+            QuizType updateItem = new QuizType()
             {
                 Id = id,
-                Title = model.Title,
-                Thumbnail = model.Thumbnail,
-                Content = model.Content,
+                Name = model.Name,
                 CreatedDate = DateTime.Now,
                 CreatedTime = DateTime.Now,
                 CreatedBy = userId,
@@ -119,15 +115,15 @@ namespace EMa.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Blog>> Delete(Guid id)
+        public async Task<ActionResult<QuizType>> Delete(Guid id)
         {
-            var item = await _context.Blogs.FindAsync(id);
+            var item = await _context.QuizTypes.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
             }
 
-            _context.Blogs.Remove(item);
+            _context.QuizTypes.Remove(item);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -141,7 +137,7 @@ namespace EMa.API.Controllers
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            Blog updateItem = new Blog()
+            QuizType updateItem = new QuizType()
             {
                 Id = id,
                 CreatedDate = DateTime.Now,
@@ -177,7 +173,7 @@ namespace EMa.API.Controllers
 
         private bool CheckExists(Guid id)
         {
-            return _context.Blogs.Any(e => e.Id == id);
+            return _context.QuizTypes.Any(e => e.Id == id);
         }
     }
 }

@@ -26,13 +26,14 @@ namespace EMa.Data.Extensions
             modelBuilder.Entity<AppUser>().HasData(new AppUser
             {
                 Id = adminId,
-                UserName = "0123456789",
+                UserName = "0112233445",
                 NormalizedUserName = "EMA@GMAIL.COM",
                 Email = "ema@gmail.com",
                 NormalizedEmail = "EMA@GMAIL.COM",
+                ChildName = "Ema Baby",
                 EmailConfirmed = true,
-                PhoneNumber = "0123456789",
-                PasswordHash = hasher.HashPassword(null, "Abc@123"),
+                PhoneNumber = "0112233445",
+                PasswordHash = hasher.HashPassword(null, "Abc123!@#"),
                 SecurityStamp = string.Empty,
                 ParentName = "Administrator",
                 UrlAvatar = "/upload/avatar/admin1.jpg",

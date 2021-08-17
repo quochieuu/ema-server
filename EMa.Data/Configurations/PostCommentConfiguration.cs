@@ -13,7 +13,7 @@ namespace EMa.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<PostComment> builder)
         {
-            builder.ToTable("Post");
+            builder.ToTable("PostComments");
             builder.HasKey(x => x.Id);
         }
     }
