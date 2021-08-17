@@ -1,4 +1,5 @@
-﻿using EMa.Data.DataContext;
+﻿using EMa.Common.Helpers;
+using EMa.Data.DataContext;
 using EMa.Data.Entities;
 using EMa.Data.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace EMa.API.Controllers
 {
     [ApiController]
-    [Route("friendlist")]
-    //[Authorize(Roles = "Admin")]
+    [Route("friends")]
     public class FriendListController : Controller
     {
         private readonly DataDbContext _context;
@@ -24,49 +25,77 @@ namespace EMa.API.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<FriendList>>> GetFriendLists()
+        public async Task<ActionResult<IEnumerable<FriendList>>> GetAll()
         {
             return await _context.FriendLists.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FriendList>> GetFriendList(Guid id)
+        public async Task<ActionResult<FriendList>> Get(Guid id)
         {
-            var friendlist = await _context.FriendLists.FindAsync(id);
+            var quizType = await _context.FriendLists.FindAsync(id);
 
-            if (friendlist == null)
+            if (quizType == null)
             {
                 return NotFound();
             }
 
-            return Ok(friendlist);
+            return Ok(quizType);
         }
 
-        [HttpPost("{userId}")]
-        public async Task<ActionResult<FriendList>> PostFriendLists(Guid userId, CreateFriendListViewModel model)
+        [HttpPost("")]
+        public async Task<ActionResult<FriendList>> Post(CreateFriendListViewModel model)
         {
-            FriendList createFriendList = new FriendList()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendList createItem = new FriendList()
             {
                 FriendId = model.FriendId,
-                UserId = model.UserId
+                UserId = model.UserId,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.FriendLists.Add(createFriendList);
+
+            _context.FriendLists.Add(createItem);
             await _context.SaveChangesAsync();
 
-            return Ok(createFriendList);
+            return Ok(createItem);
         }
 
-
-        [HttpPut("{id}/{userId}")]
-        public async Task<IActionResult> PutFriendLists(Guid id, Guid userId, UpdateFriendListViewModel model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, UpdateFriendListViewModel model)
         {
-            FriendList updateFriendList = new FriendList()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendList updateItem = new FriendList()
             {
                 Id = id,
                 FriendId = model.FriendId,
-                UserId = model.UserId
+                UserId = model.UserId,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.Entry(updateFriendList).State = EntityState.Modified;
+            _context.Entry(updateItem).State = EntityState.Modified;
 
             try
             {
@@ -74,7 +103,7 @@ namespace EMa.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FriendListsExists(id))
+                if (!CheckExists(id))
                 {
                     return NotFound();
                 }
@@ -84,28 +113,69 @@ namespace EMa.API.Controllers
                 }
             }
 
-            return Ok(updateFriendList);
+            return Ok(updateItem);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<FriendList>> DeleteFriendLists(Guid id)
+        public async Task<ActionResult<FriendList>> Delete(Guid id)
         {
-            var friendlist = await _context.FriendLists.FindAsync(id);
-            if (friendlist == null)
+            var item = await _context.FriendLists.FindAsync(id);
+            if (item == null)
             {
                 return NotFound();
             }
 
-            _context.FriendLists.Remove(friendlist);
+            _context.FriendLists.Remove(item);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
-        private bool FriendListsExists(Guid id)
+        [HttpDelete("hide/{id}")]
+        public async Task<IActionResult> Hide(Guid id)
+        {
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            FriendList updateItem = new FriendList()
+            {
+                Id = id,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = userId,
+                IsActive = true,
+                IsDeleted = true,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
+            };
+            _context.Entry(updateItem).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CheckExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(updateItem);
+        }
+
+        private bool CheckExists(Guid id)
         {
             return _context.FriendLists.Any(e => e.Id == id);
         }
-
     }
 }

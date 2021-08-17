@@ -1,7 +1,7 @@
-﻿using EMa.Data.DataContext;
+﻿using EMa.Common.Helpers;
+using EMa.Data.DataContext;
 using EMa.Data.Entities;
 using EMa.Data.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace EMa.API.Controllers
 {
     [ApiController]
     [Route("blog")]
-    [Authorize(Roles = "Admin")]
     public class BlogController : Controller
     {
         private readonly DataDbContext _context;
@@ -25,54 +25,79 @@ namespace EMa.API.Controllers
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<Blog>>> GetBlogs()
+        public async Task<ActionResult<IEnumerable<Blog>>> GetAll()
         {
             return await _context.Blogs.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Blog>> GetBlog(Guid id)
+        public async Task<ActionResult<Blog>> Get(Guid id)
         {
-            var blog = await _context.Blogs.FindAsync(id);
+            var quizType = await _context.Blogs.FindAsync(id);
 
-            if (blog == null)
+            if (quizType == null)
             {
                 return NotFound();
             }
 
-            return Ok(blog);
+            return Ok(quizType);
         }
 
-        [HttpPost("{userId}")]
-        public async Task<ActionResult<Blog>> PostHealths(Guid userId, CreateBlogViewModel model)
+        [HttpPost("")]
+        public async Task<ActionResult<Blog>> Post(CreateBlogViewModel model)
         {
-            Blog createBlog = new Blog()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            Blog createItem = new Blog()
             {
                 Title = model.Title,
+                Thumbnail = model.Thumbnail,
                 Content = model.Content,
-                ViewCount = model.ViewCount,
-                Thumbnail = model.Thumbnail
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.Blogs.Add(createBlog);
+
+            _context.Blogs.Add(createItem);
             await _context.SaveChangesAsync();
 
-            return Ok(createBlog);
+            return Ok(createItem);
         }
 
-
-        [HttpPut("{id}/{userId}")]
-        public async Task<IActionResult> PutBlogs(Guid id, Guid userId, UpdateBlogViewModel model)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(Guid id, UpdateBlogViewModel model)
         {
-            Blog updateBlog = new Blog()
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            Blog updateItem = new Blog()
             {
                 Id = id,
                 Title = model.Title,
-                Content = model.Content,
-                ViewCount = model.ViewCount,
                 Thumbnail = model.Thumbnail,
-                CreatedDate = DateTime.Now
+                Content = model.Content,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = null,
+                IsActive = true,
+                IsDeleted = false,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
             };
-            _context.Entry(updateBlog).State = EntityState.Modified;
+            _context.Entry(updateItem).State = EntityState.Modified;
 
             try
             {
@@ -80,7 +105,7 @@ namespace EMa.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BlogsExists(id))
+                if (!CheckExists(id))
                 {
                     return NotFound();
                 }
@@ -90,28 +115,69 @@ namespace EMa.API.Controllers
                 }
             }
 
-            return Ok(updateBlog);
+            return Ok(updateItem);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Blog>> DeleteBlogs(Guid id)
+        public async Task<ActionResult<Blog>> Delete(Guid id)
         {
-            var blog = await _context.Blogs.FindAsync(id);
-            if (blog == null)
+            var item = await _context.Blogs.FindAsync(id);
+            if (item == null)
             {
                 return NotFound();
             }
 
-            _context.Blogs.Remove(blog);
+            _context.Blogs.Remove(item);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
 
-        private bool BlogsExists(Guid id)
+        [HttpDelete("hide/{id}")]
+        public async Task<IActionResult> Hide(Guid id)
+        {
+            string tokenString = Request.Headers["Authorization"].ToString();
+            // Get UserId, ChildName, PhoneNumber from token
+            var infoFromToken = Authorization.GetInfoFromToken(tokenString);
+            var userId = infoFromToken.Result.UserId;
+
+            Blog updateItem = new Blog()
+            {
+                Id = id,
+                CreatedDate = DateTime.Now,
+                CreatedTime = DateTime.Now,
+                CreatedBy = userId,
+                DeletedBy = userId,
+                IsActive = true,
+                IsDeleted = true,
+                ModifiedBy = userId,
+                ModifiedDate = DateTime.Now,
+                ModifiedTime = DateTime.Now
+            };
+            _context.Entry(updateItem).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CheckExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Ok(updateItem);
+        }
+
+        private bool CheckExists(Guid id)
         {
             return _context.Blogs.Any(e => e.Id == id);
         }
-
     }
 }

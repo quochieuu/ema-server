@@ -13,27 +13,27 @@ using System.Threading.Tasks;
 namespace EMa.API.Controllers
 {
     [ApiController]
-    [Route("friendship")]
-    public class FriendShipController : Controller
+    [Route("quiz")]
+    public class QuizController : Controller
     {
         private readonly DataDbContext _context;
 
-        public FriendShipController(DataDbContext context)
+        public QuizController(DataDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
         [Route("")]
-        public async Task<ActionResult<IEnumerable<FriendShip>>> GetAll()
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetAll()
         {
-            return await _context.FriendShips.ToListAsync();
+            return await _context.Quizzes.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<FriendShip>> Get(Guid id)
+        public async Task<ActionResult<Quiz>> Get(Guid id)
         {
-            var quizType = await _context.FriendShips.FindAsync(id);
+            var quizType = await _context.Quizzes.FindAsync(id);
 
             if (quizType == null)
             {
@@ -44,18 +44,23 @@ namespace EMa.API.Controllers
         }
 
         [HttpPost("")]
-        public async Task<ActionResult<FriendShip>> Post(CreateFriendShipViewModel model)
+        public async Task<ActionResult<Quiz>> Post(CreateQuizViewModel model)
         {
             string tokenString = Request.Headers["Authorization"].ToString();
             // Get UserId, ChildName, PhoneNumber from token
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            FriendShip createItem = new FriendShip()
+            Quiz createItem = new Quiz()
             {
-                SenderId = model.SenderId,
-                ReceipId = model.ReceipId,
-                Confirmed = model.Confirmed,
+                QuestionName = model.QuestionName,
+                NoAnswer = model.NoAnswer,
+                CorrectAnswer = model.CorrectAnswer,
+                InCorrectAnswer1 = model.InCorrectAnswer1,
+                InCorrectAnswer2 = model.InCorrectAnswer2,
+                InCorrectAnswer3 = model.InCorrectAnswer3,
+                InCorrectAnswer4 = model.InCorrectAnswer4,
+                InCorrectAnswer5 = model.InCorrectAnswer5,
                 CreatedDate = DateTime.Now,
                 CreatedTime = DateTime.Now,
                 CreatedBy = userId,
@@ -67,26 +72,31 @@ namespace EMa.API.Controllers
                 ModifiedTime = DateTime.Now
             };
 
-            _context.FriendShips.Add(createItem);
+            _context.Quizzes.Add(createItem);
             await _context.SaveChangesAsync();
 
             return Ok(createItem);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(Guid id, UpdateFriendShipViewModel model)
+        public async Task<IActionResult> Put(Guid id, UpdateQuizViewModel model)
         {
             string tokenString = Request.Headers["Authorization"].ToString();
             // Get UserId, ChildName, PhoneNumber from token
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            FriendShip updateItem = new FriendShip()
+            Quiz updateItem = new Quiz()
             {
                 Id = id,
-                SenderId = model.SenderId,
-                ReceipId = model.ReceipId,
-                Confirmed = model.Confirmed,
+                QuestionName = model.QuestionName,
+                NoAnswer = model.NoAnswer,
+                CorrectAnswer = model.CorrectAnswer,
+                InCorrectAnswer1 = model.InCorrectAnswer1,
+                InCorrectAnswer2 = model.InCorrectAnswer2,
+                InCorrectAnswer3 = model.InCorrectAnswer3,
+                InCorrectAnswer4 = model.InCorrectAnswer4,
+                InCorrectAnswer5 = model.InCorrectAnswer5,
                 CreatedDate = DateTime.Now,
                 CreatedTime = DateTime.Now,
                 CreatedBy = userId,
@@ -119,15 +129,15 @@ namespace EMa.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<FriendShip>> Delete(Guid id)
+        public async Task<ActionResult<Quiz>> Delete(Guid id)
         {
-            var item = await _context.FriendShips.FindAsync(id);
+            var item = await _context.Quizzes.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
             }
 
-            _context.FriendShips.Remove(item);
+            _context.Quizzes.Remove(item);
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -141,7 +151,7 @@ namespace EMa.API.Controllers
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            FriendShip updateItem = new FriendShip()
+            Quiz updateItem = new Quiz()
             {
                 Id = id,
                 CreatedDate = DateTime.Now,
@@ -177,7 +187,7 @@ namespace EMa.API.Controllers
 
         private bool CheckExists(Guid id)
         {
-            return _context.FriendShips.Any(e => e.Id == id);
+            return _context.Quizzes.Any(e => e.Id == id);
         }
     }
 }

@@ -1,9 +1,12 @@
-﻿using EMa.Data.Entities.Common;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace EMa.Data.Entities
+namespace EMa.Data.ViewModel
 {
-    public class Quiz : ModelBase
+    public class UpdateQuizViewModel
     {
         public string QuestionName { get; set; }
         public int NoAnswer { get; set; }
