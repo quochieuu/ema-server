@@ -92,7 +92,22 @@ namespace EMa.API
                     };
                 });
 
-            services.AddControllers();
+            //services.AddSession(options => {
+            //    options.IdleTimeout = TimeSpan.FromMinutes(30);
+            //});
+
+            //services.AddSession();
+
+            services.AddControllers(config =>
+            {
+                // using Microsoft.AspNetCore.Mvc.Authorization;
+                // using Microsoft.AspNetCore.Authorization;
+                var policy = new AuthorizationPolicyBuilder()
+                                 .RequireAuthenticatedUser()
+                                 .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "EMa.API", Version = "v1" });
@@ -143,6 +158,8 @@ namespace EMa.API
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            //app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

@@ -52,7 +52,7 @@ namespace EMa.API.Controllers
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.PhoneNumber == model.PhoneNumber);
 
-                    var result = await _signInManager.CheckPasswordSignInAsync(appUser, model.Password, false);
+                    var result = await _signInManager.PasswordSignInAsync(appUser, model.Password, false, false);
 
                     if (result.Succeeded)
                     {

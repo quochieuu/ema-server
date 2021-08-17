@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EMa.Data.Migrations
 {
     [DbContext(typeof(DataDbContext))]
-    [Migration("20210817161035_Initial")]
+    [Migration("20210817170330_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,7 +56,7 @@ namespace EMa.Data.Migrations
                         new
                         {
                             Id = new Guid("8d04dce2-969a-435d-bba4-df3f325983dc"),
-                            ConcurrencyStamp = "e97e0005-c4fb-483d-b9cc-75c49a16d042",
+                            ConcurrencyStamp = "12ea43a1-ca27-428f-a48d-8d9c9bacc30b",
                             Description = "Administrator role",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
@@ -161,7 +161,8 @@ namespace EMa.Data.Migrations
                             Address = "Đà Nẵng",
                             ChildBirth = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             ChildGender = false,
-                            ConcurrencyStamp = "9d2c8d74-21c1-4a06-b62c-d54b906be2e2",
+                            ChildName = "Ema Baby",
+                            ConcurrencyStamp = "fe9996c4-9d50-4bc4-a551-85d18af2a7e3",
                             Email = "ema@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -169,13 +170,13 @@ namespace EMa.Data.Migrations
                             NormalizedUserName = "EMA@GMAIL.COM",
                             ParentAge = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             ParentName = "Administrator",
-                            PasswordHash = "AQAAAAEAACcQAAAAEPPQNB/uufYg3CBOeoIo3694mdRq5q+npS1QUuROF8IY6wZZEgJVdaOwBd9ynYkOqg==",
-                            PhoneNumber = "0123456789",
+                            PasswordHash = "AQAAAAEAACcQAAAAEArabmwn+K1peaQg8UQN/KtCWEbFRJPYURqVz1hwqA5FqMcPDXjMJkq67T2/8cns0g==",
+                            PhoneNumber = "0112233445",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
                             UrlAvatar = "/upload/avatar/admin1.jpg",
-                            UserName = "0123456789"
+                            UserName = "0112233445"
                         });
                 });
 

@@ -1,6 +1,7 @@
 ﻿using EMa.Data.DataContext;
 using EMa.Data.Entities;
 using EMa.Data.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +13,7 @@ namespace EMa.API.Controllers
 {
     [ApiController]
     [Route("blog")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class BlogController : Controller
     {
         private readonly DataDbContext _context;
