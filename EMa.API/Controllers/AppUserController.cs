@@ -38,7 +38,7 @@ namespace EMa.API.Controllers
             var infoFromToken = Authorization.GetInfoFromToken(tokenString);
             var userId = infoFromToken.Result.UserId;
 
-            var quizType = await _context.AppUsers.FindAsync(userId);
+            var quizType = await _context.AppUsers.FindAsync(Guid.Parse(userId));
 
             if (quizType == null)
             {

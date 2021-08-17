@@ -27,7 +27,7 @@ namespace EMa.API.Controllers
         [Route("")]
         public async Task<ActionResult<IEnumerable<LessionQuiz>>> GetAll()
         {
-            return await _context.LessionQuizzes.ToListAsync();
+            return await _context.LessionQuizzes.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
         }
 
         [HttpGet("{id}")]

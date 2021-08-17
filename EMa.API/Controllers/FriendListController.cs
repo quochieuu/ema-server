@@ -27,7 +27,7 @@ namespace EMa.API.Controllers
         [Route("")]
         public async Task<ActionResult<IEnumerable<FriendList>>> GetAll()
         {
-            return await _context.FriendLists.ToListAsync();
+            return await _context.FriendLists.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
         }
 
         [HttpGet("{id}")]

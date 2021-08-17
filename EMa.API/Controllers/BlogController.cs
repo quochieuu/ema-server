@@ -27,7 +27,7 @@ namespace EMa.API.Controllers
         [Route("")]
         public async Task<ActionResult<IEnumerable<Blog>>> GetAll()
         {
-            return await _context.Blogs.ToListAsync();
+            return await _context.Blogs.Where(p => p.IsActive == true && p.IsDeleted == false).ToListAsync();
         }
 
         [HttpGet("{id}")]
