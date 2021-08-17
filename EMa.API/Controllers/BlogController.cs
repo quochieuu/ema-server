@@ -69,7 +69,7 @@ namespace EMa.API.Controllers
                 Content = model.Content,
                 ViewCount = model.ViewCount,
                 Thumbnail = model.Thumbnail,
-                CreatedAt = DateTime.Now
+                CreatedDate = DateTime.Now
             };
             _context.Entry(updateBlog).State = EntityState.Modified;
 

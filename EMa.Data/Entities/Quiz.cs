@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EMa.Data.Entities.Common;
+using System;
 
 namespace EMa.Data.Entities
 {
-    public class Quiz
+    public class Quiz : ModelBase
     {
-        public Guid Id { get; set; }
         public string QuestionName { get; set; }
         public int NoAnswer { get; set; }
         public string CorrectAnswer { get; set; }

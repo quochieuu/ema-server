@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EMa.Data.Entities.Common;
+using System;
 
 namespace EMa.Data.Entities
 {
-    public class PostComment
+    public class PostComment : ModelBase
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public Guid PostId { get; set; }
         public string Content { get; set; }
-        public DateTime CreatedAt { get; set; }
 
         public virtual AppUser AppUser { get; set; }
         public virtual Post Post { get; set; }
