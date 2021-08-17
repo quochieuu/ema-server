@@ -1,4 +1,5 @@
-﻿using EMa.Data.Entities;
+﻿using EMa.Data.DataContext;
+using EMa.Data.Entities;
 using EMa.Data.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,13 +23,16 @@ namespace EMa.API.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly DataDbContext _context;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            IConfiguration configuration)
+            IConfiguration configuration, DataDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            _context = context;
+
         }
 
         [AllowAnonymous]
@@ -36,17 +40,31 @@ namespace EMa.API.Controllers
         [Route("login")]
         public async Task<object> Login([FromBody] LoginViewModel model)
         {
-            var appUser = _userManager.Users.SingleOrDefault(r => r.PhoneNumber == model.PhoneNumber);
+            if(ModelState.IsValid)
+            {
+                var phoneNumberExists = this.PhoneNumbersExists(model.PhoneNumber);
 
-            var result = await _signInManager.CheckPasswordSignInAsync(appUser, model.Password, false);
+                if (!phoneNumberExists)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    var appUser = _userManager.Users.SingleOrDefault(r => r.PhoneNumber == model.PhoneNumber);
 
-            if (result.Succeeded) 
-            { 
-                var token = await GenerateJwtToken(appUser.PhoneNumber, appUser);
-                return Ok(token);
+                    var result = await _signInManager.CheckPasswordSignInAsync(appUser, model.Password, false);
+
+                    if (result.Succeeded)
+                    {
+                        var token = await GenerateJwtToken(appUser.PhoneNumber, appUser);
+                        return Ok(token);
+                    }
+
+                    return Unauthorized();
+                }
             }
 
-            return Unauthorized();
+            return BadRequest();
         }
 
         [AllowAnonymous]
@@ -54,18 +72,31 @@ namespace EMa.API.Controllers
         [Route("register")]
         public async Task<object> Register([FromBody] RegisterViewModel model)
         {
-            var user = new AppUser
+            if(ModelState.IsValid)
             {
-                ChildName = model.ChildName,
-                UserName = model.PhoneNumber,
-                PhoneNumber = model.PhoneNumber
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
+                var phoneNumberExists = this.PhoneNumbersExists(model.PhoneNumber);
 
-            if (result.Succeeded)
-            {
-                // await _signInManager.SignInAsync(user, false);
-                return await GenerateJwtToken(model.PhoneNumber, user);
+                if (phoneNumberExists)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    var user = new AppUser
+                    {
+                        ChildName = model.ChildName,
+                        UserName = model.PhoneNumber,
+                        PhoneNumber = model.PhoneNumber
+                    };
+                    var result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        return await GenerateJwtToken(model.PhoneNumber, user);
+                    }
+
+                    return BadRequest();
+                }
             }
 
             return BadRequest();
@@ -94,6 +125,11 @@ namespace EMa.API.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private bool PhoneNumbersExists(string phoneNumber)
+        {
+            return _context.AppUsers.Any(e => e.PhoneNumber == phoneNumber);
         }
     }
 }
