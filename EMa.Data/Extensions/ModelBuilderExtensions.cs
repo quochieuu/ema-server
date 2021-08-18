@@ -27,7 +27,7 @@ namespace EMa.Data.Extensions
             {
                 Id = adminId,
                 UserName = "0112233445",
-                NormalizedUserName = "EMA@GMAIL.COM",
+                NormalizedUserName = "0112233445",
                 Email = "ema@gmail.com",
                 NormalizedEmail = "EMA@GMAIL.COM",
                 ChildName = "Ema Baby",
